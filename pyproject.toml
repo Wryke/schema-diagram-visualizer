@@ -1,0 +1,13 @@
+[project]
+name = "schemadiagram"
+version = "0.1.0"
+description = "Draw diagrams from SQL schema files"
+requires-python = ">=3.12"
+dependencies = ["graphviz"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
