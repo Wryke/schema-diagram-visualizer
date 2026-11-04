@@ -12,8 +12,7 @@ from schemadiagram.model import Schema, Table
 
 def escape(text: str) -> str:
     """Escape text for use inside an HTML-like label (& < > ")."""
-    # TODO: CHECK (salary > 0) will break the label without this
-    raise NotImplementedError
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 
 
 def table_label(table: Table) -> str:

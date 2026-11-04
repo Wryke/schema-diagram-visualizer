@@ -5,7 +5,7 @@ import pytest
 from schemadiagram.model import Column, ForeignKey, Schema, Table
 from schemadiagram.render_dot import escape, to_dot
 
-pytestmark = pytest.mark.skip(reason="Phase 1: delete this line when you start the renderer")
+# pytestmark = pytest.mark.skip(reason="Phase 1: delete this line when you start the renderer")
 
 
 def test_escape_html_characters():
