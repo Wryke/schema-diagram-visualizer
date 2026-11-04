@@ -35,10 +35,10 @@ def table_label(table: Table) -> str:
     for column in table.columns:
         rows.append(f'<tr><td port="{escape(column.name)}" align="left">{escape(column.name)}  {escape(column.type)}</td></tr>')
         
-    joinedRows = "\n".join(rows)
+    joined_rows = "\n".join(rows)
     
     # Table Creation
-    label = f'<<table border="{border}" cellborder="{cellborder}" cellspacing="{cellspacing}">\n{joinedRows}\n</table>>'
+    label = f'<<table border="{border}" cellborder="{cellborder}" cellspacing="{cellspacing}">\n{joined_rows}\n</table>>'
     return label
 
 
@@ -46,13 +46,23 @@ def to_dot(schema: Schema, dpi: int | None = None) -> str:
     """Build the full DOT text.
 
     TODO:
-      - 'digraph schema {', graph/node defaults (node [shape=plaintext])
-      - if dpi is given, add graph [dpi=...] (sharper PNGs)
       - one node per table using table_label()
       - one edge per foreign key: from_table:from_col -> to_table:to_col
       - self-references are just edges where both ends are the same table
     """
-    raise NotImplementedError
+        
+    settings =  (f'  graph [dpi={dpi}];\n' if dpi is not None else "") + '  node [shape=plaintext];\n'
+    
+    labels=[]
+    
+    for table in schema.tables:
+        labels.append(f'{table.name} [label={table_label(table)}];')
+    
+    joined_labels = "\n".join(labels)
+    
+    dot = f'digraph schema {{\n{settings}{joined_labels}\n}}'
+    
+    return dot
 
 
 def render(dot_text: str, output: Path) -> Path:
