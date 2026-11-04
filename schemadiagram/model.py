@@ -64,5 +64,8 @@ class Schema:
     @property
     def foreign_keys(self) -> list[ForeignKey]:
         """Every foreign key in the schema, across all tables."""
-        # TODO: collect fk for each table, for each fk in table.foreign_keys
-        raise NotImplementedError
+        result = []
+        for table in self.tables:
+            for fk in table.foreign_keys:
+                result.append(fk)
+        return result

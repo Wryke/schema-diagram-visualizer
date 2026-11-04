@@ -7,7 +7,10 @@ from pathlib import Path
 
 import graphviz
 
-from schemadiagram.model import Schema, Table
+from schemadiagram.model import ForeignKey, Schema, Table
+
+# Colors for composite foreign keys; cycles if there are more than four.
+COMPOSITE_COLORS = ["darkgreen", "purple", "darkorange", "navy"]
 
 
 def escape(text: str) -> str:
@@ -42,13 +45,17 @@ def table_label(table: Table) -> str:
     return label
 
 
-def to_dot(schema: Schema, dpi: int | None = None) -> str:
-    """Build the full DOT text.
+def edge_attributes(fk: ForeignKey, number: int) -> str:
+    """DOT attributes that mark the arrows of one composite foreign key as a group."""
+    color = COMPOSITE_COLORS[(number - 1) % len(COMPOSITE_COLORS)]
+    label = (fk.name or f"fk {number}").replace('"', '\\"')
+    return f' [color="{color}", fontcolor="{color}", label="{label}"]'
 
-    TODO:
-      - one node per table using table_label()
-      - one edge per foreign key: from_table:from_col -> to_table:to_col
-      - self-references are just edges where both ends are the same table
+
+def to_dot(schema: Schema, dpi: int | None = None) -> str:
+    """Build the full DOT text: one node per table, one edge per foreign key column pair.
+
+    Arrows of the same composite foreign key share a color and label.
     """
         
     settings =  (f'  graph [dpi={dpi}];\n' if dpi is not None else "") + '  node [shape=plaintext];\n'
@@ -60,7 +67,22 @@ def to_dot(schema: Schema, dpi: int | None = None) -> str:
     
     joined_labels = "\n".join(labels)
     
-    dot = f'digraph schema {{\n{settings}{joined_labels}\n}}'
+    edges = []
+    composite_number = 0
+
+    for key in schema.foreign_keys:
+        # Computed once per key, so every column pair of a composite key gets the same attributes.
+        attributes = ""
+        if len(key.from_columns) > 1:
+            composite_number += 1
+            attributes = edge_attributes(key, composite_number)
+
+        for from_col, to_col in zip(key.from_columns, key.to_columns):
+            edges.append(f"  {key.from_table}:{from_col} -> {key.to_table}:{to_col}{attributes};")
+
+    joined_edges = "\n".join(edges)
+    
+    dot = f'digraph schema {{\n{settings}{joined_labels}\n{joined_edges}\n}}'
     
     return dot
 
