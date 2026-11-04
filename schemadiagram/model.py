@@ -3,7 +3,7 @@
 This file is the contract between the stages. It must not import anything
 from the tokenizer, the parser, or Graphviz.
 
-Phase 1 TODO:
+Phase 1:
   - Fill in the fields for each class below.
   - Then build a Schema by hand (see examples/hand_built.py) and render it.
 """
@@ -15,7 +15,10 @@ from dataclasses import dataclass, field
 class Column:
     name: str
     type: str  # e.g. "VARCHAR(255)", kept as text
-    # TODO: nullable, primary_key, unique, default, check
+    nullable: bool = True
+    unique: bool = False
+    default: str | None = None
+    check: str | None = None
 
 
 @dataclass
@@ -24,7 +27,8 @@ class ForeignKey:
     from_columns: list[str]
     to_table: str
     to_columns: list[str]
-    # TODO: on_delete? constraint name?
+    name: str | None = None
+    on_delete: str | None = None
 
 
 @dataclass
@@ -32,7 +36,18 @@ class Table:
     name: str
     columns: list[Column] = field(default_factory=list)
     foreign_keys: list[ForeignKey] = field(default_factory=list)
-    # TODO: table-level checks, composite primary key
+    primary_key: list[str] = field(default_factory=list)   # e.g. ["project_id", "employee_id"]
+    checks: list[str] = field(default_factory=list)
+
+    def column(self, name: str) -> Column | None:
+        """Look up a column by name (case-insensitive), or return None."""
+        # TODO: same pattern as Schema.table, but over self.columns
+        raise NotImplementedError
+
+    def is_primary_key(self, column_name: str) -> bool:
+        """True if the column is part of this table's primary key (case-insensitive)."""
+        # TODO: is column_name.lower() among the lowercased names in self.primary_key?
+        raise NotImplementedError
 
 
 @dataclass
@@ -41,5 +56,13 @@ class Schema:
 
     def table(self, name: str) -> Table | None:
         """Look up a table by name, or return None."""
-        # TODO: should this be case-insensitive? SQL usually is.
+        for t in self.tables:
+            if t.name.lower() == name.lower():
+                return t
+        return None
+
+    @property
+    def foreign_keys(self) -> list[ForeignKey]:
+        """Every foreign key in the schema, across all tables."""
+        # TODO: collect fk for each table, for each fk in table.foreign_keys
         raise NotImplementedError
