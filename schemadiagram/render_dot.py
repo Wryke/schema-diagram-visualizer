@@ -20,7 +20,26 @@ def table_label(table: Table) -> str:
 
     Give each column's <td> a port="<column name>" so edges can attach to it.
     """
-    raise NotImplementedError
+    # Style Params
+    border = 0
+    cellborder = 1
+    cellspacing = 0
+    bgcolor = "lightblue"
+    
+    rows = []
+    
+    # Header Creation
+    rows.append(f'<tr><td bgcolor="{bgcolor}"><b>{escape(table.name)}</b></td></tr>')
+    
+    # Column Building
+    for column in table.columns:
+        rows.append(f'<tr><td port="{escape(column.name)}" align="left">{escape(column.name)}  {escape(column.type)}</td></tr>')
+        
+    joinedRows = "\n".join(rows)
+    
+    # Table Creation
+    label = f'<<table border="{border}" cellborder="{cellborder}" cellspacing="{cellspacing}">\n{joinedRows}\n</table>>'
+    return label
 
 
 def to_dot(schema: Schema, dpi: int | None = None) -> str:
