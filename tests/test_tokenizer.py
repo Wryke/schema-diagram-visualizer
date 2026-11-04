@@ -5,7 +5,7 @@ import pytest
 
 from schemadiagram.tokenizer import TokenizeError, TokenType, tokenize
 
-pytestmark = pytest.mark.skip(reason="Phase 2: delete this line when you start the tokenizer")
+# pytestmark = pytest.mark.skip(reason="Phase 2: delete this line when you start the tokenizer")
 
 
 def types_and_values(text):
@@ -49,3 +49,9 @@ def test_tracks_line_numbers():
 def test_unexpected_character_raises():
     with pytest.raises(TokenizeError):
         tokenize("@")
+
+
+def test_whitespace_only_is_just_eof():
+    tokens = tokenize("  \n\t ")
+    assert [t.type for t in tokens] == [TokenType.EOF]
+    assert tokens[0].line == 2

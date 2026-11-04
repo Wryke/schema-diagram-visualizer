@@ -54,4 +54,23 @@ def tokenize(text: str) -> list[Token]:
       - quoted identifiers: "x", `x`, [x]
       - raise TokenizeError with line/column for anything unexpected
     """
-    raise NotImplementedError
+    tokens: list[Token] = []
+    pos = 0      # index of the current character in text
+    line = 1     # 1-based, for error messages
+    column = 1
+
+    while pos < len(text):
+        ch = text[pos]
+
+        if ch == "\n":
+            pos += 1
+            line += 1
+            column = 1
+        elif ch.isspace():
+            pos += 1
+            column += 1
+        else:
+            raise TokenizeError(f"Unexpected {ch!r} at line {line}, col {column}")
+
+    tokens.append(Token(TokenType.EOF, "", line, column))
+    return tokens
