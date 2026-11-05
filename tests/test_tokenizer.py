@@ -55,3 +55,53 @@ def test_whitespace_only_is_just_eof():
     tokens = tokenize("  \n\t ")
     assert [t.type for t in tokens] == [TokenType.EOF]
     assert tokens[0].line == 2
+
+
+def test_identifier_keeps_its_case():
+    assert types_and_values("Users") == [(TokenType.IDENTIFIER, "Users"), (TokenType.EOF, "")]
+
+
+def test_keyword_value_is_uppercased():
+    assert tokenize("create")[0].value == "CREATE"
+
+
+def test_identifier_with_underscore_and_digits():
+    assert tokenize("project_id2")[0].value == "project_id2"
+
+
+def test_word_at_end_of_input():
+    # catches a missing pos < len(text) check
+    assert len(tokenize("users")) == 2
+
+
+def test_each_symbol_is_its_own_token():
+    assert types_and_values("(),;.") == [
+        (TokenType.SYMBOL, "("),
+        (TokenType.SYMBOL, ")"),
+        (TokenType.SYMBOL, ","),
+        (TokenType.SYMBOL, ";"),
+        (TokenType.SYMBOL, "."),
+        (TokenType.EOF, ""),
+    ]
+
+
+def test_symbol_ends_a_word():
+    assert types_and_values("users(") == [
+        (TokenType.IDENTIFIER, "users"),
+        (TokenType.SYMBOL, "("),
+        (TokenType.EOF, ""),
+    ]
+
+
+def test_schema_qualified_name():
+    assert types_and_values("public.users") == [
+        (TokenType.IDENTIFIER, "public"),
+        (TokenType.SYMBOL, "."),
+        (TokenType.IDENTIFIER, "users"),
+        (TokenType.EOF, ""),
+    ]
+
+
+def test_symbol_column_positions():
+    tokens = tokenize("(a, b)")
+    assert [t.column for t in tokens[:-1]] == [1, 2, 3, 5, 6]

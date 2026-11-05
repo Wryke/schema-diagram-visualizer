@@ -28,6 +28,9 @@ KEYWORDS = {
     "ALTER", "ADD",
 }
 
+# Single-character punctuation, each its own SYMBOL token.
+SYMBOLS = {"(", ")", ",", ";", "."}
+
 
 @dataclass(frozen=True)
 class Token:
@@ -67,6 +70,24 @@ def tokenize(text: str) -> list[Token]:
             line += 1
             column = 1
         elif ch.isspace():
+            pos += 1
+            column += 1
+        elif ch.isalpha() or ch == "_":
+            start = pos              # where the word begins in text
+            start_column = column    # the token's column is where it STARTS
+
+            while pos < len(text) and (text[pos].isalnum() or text[pos] == "_"):
+                pos += 1
+                column += 1
+
+            word = text[start:pos]
+
+            if word.upper() in KEYWORDS:
+                tokens.append(Token(TokenType.KEYWORD, word.upper(), line, start_column))
+            else:
+                tokens.append(Token(TokenType.IDENTIFIER, word, line, start_column))
+        elif ch in SYMBOLS:
+            tokens.append(Token(TokenType.SYMBOL, ch, line, column))
             pos += 1
             column += 1
         else:
