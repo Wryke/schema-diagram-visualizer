@@ -90,6 +90,12 @@ def tokenize(text: str) -> list[Token]:
             tokens.append(Token(TokenType.SYMBOL, ch, line, column))
             pos += 1
             column += 1
+        elif ch == "-" and pos + 1 < len(text) and text[pos + 1] == "-":
+            # Line comment: skip to the end of the line, but leave the "\n"
+            # for the newline branch so the line count stays right.
+            while pos < len(text) and text[pos] != "\n":
+                pos += 1
+                column += 1
         else:
             raise TokenizeError(f"Unexpected {ch!r} at line {line}, col {column}")
 

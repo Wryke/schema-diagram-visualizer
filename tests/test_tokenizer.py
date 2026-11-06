@@ -105,3 +105,25 @@ def test_schema_qualified_name():
 def test_symbol_column_positions():
     tokens = tokenize("(a, b)")
     assert [t.column for t in tokens[:-1]] == [1, 2, 3, 5, 6]
+
+
+def test_comment_after_code_on_same_line():
+    assert types_and_values("users -- the users table") == [
+        (TokenType.IDENTIFIER, "users"),
+        (TokenType.EOF, ""),
+    ]
+
+
+def test_comment_at_end_of_input_without_newline():
+    # catches a missing pos < len(text) check in the comment loop
+    assert types_and_values("-- just a comment") == [(TokenType.EOF, "")]
+
+
+def test_comment_keeps_line_numbers_right():
+    tokens = tokenize("-- one\n-- two\nusers")
+    assert (tokens[0].value, tokens[0].line, tokens[0].column) == ("users", 3, 1)
+
+
+def test_single_dash_is_not_a_comment():
+    with pytest.raises(TokenizeError):
+        tokenize("- not a comment")
