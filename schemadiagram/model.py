@@ -66,6 +66,5 @@ class Schema:
         """Every foreign key in the schema, across all tables."""
         result = []
         for table in self.tables:
-            for fk in table.foreign_keys:
-                result.append(fk)
+            result.extend(table.foreign_keys)
         return result

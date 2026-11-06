@@ -17,6 +17,12 @@ def test_each_table_becomes_a_node():
     assert "users" in dot
 
 
+def test_dpi_line_only_when_asked():
+    schema = Schema(tables=[Table("users", [Column("id", "INT")])])
+    assert "dpi" not in to_dot(schema)
+    assert "graph [dpi=200];" in to_dot(schema, dpi=200)
+
+
 def test_self_reference_edge():
     schema = Schema(tables=[
         Table(
