@@ -2,10 +2,6 @@
 
 This file is the contract between the stages. It must not import anything
 from the tokenizer, the parser, or Graphviz.
-
-Phase 1:
-  - Fill in the fields for each class below.
-  - Then build a Schema by hand (see examples/hand_built.py) and render it.
 """
 
 from dataclasses import dataclass, field
@@ -19,6 +15,7 @@ class Column:
     unique: bool = False
     default: str | None = None
     check: str | None = None
+    auto_increment: bool = False  # AUTO_INCREMENT, AUTOINCREMENT, IDENTITY, GENERATED ... AS IDENTITY
 
 
 @dataclass
@@ -38,21 +35,28 @@ class Table:
     foreign_keys: list[ForeignKey] = field(default_factory=list)
     primary_key: list[str] = field(default_factory=list)   # e.g. ["project_id", "employee_id"]
     checks: list[str] = field(default_factory=list)
+    unique_sets: list[list[str]] = field(default_factory=list)   # multi-column UNIQUE; one column uses Column.unique
 
     def column(self, name: str) -> Column | None:
         """Look up a column by name (case-insensitive), or return None."""
-        # TODO: same pattern as Schema.table, but over self.columns
-        raise NotImplementedError
+        for c in self.columns:
+            if c.name.lower() == name.lower():
+                return c
+        return None
 
     def is_primary_key(self, column_name: str) -> bool:
         """True if the column is part of this table's primary key (case-insensitive)."""
-        # TODO: is column_name.lower() among the lowercased names in self.primary_key?
-        raise NotImplementedError
+        return column_name.lower() in (name.lower() for name in self.primary_key)
+
+    def is_foreign_key(self, column_name: str) -> bool:
+        """True if the column is part of one of this table's foreign keys (case-insensitive)."""
+        return any(column_name.lower() == name.lower() for fk in self.foreign_keys for name in fk.from_columns)
 
 
 @dataclass
 class Schema:
     tables: list[Table] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)   # things the parser skipped or couldn't resolve
 
     def table(self, name: str) -> Table | None:
         """Look up a table by name, or return None."""

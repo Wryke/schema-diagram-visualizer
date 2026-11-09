@@ -185,9 +185,9 @@ python -m schemadiagram examples/basic.sql -o out/basic.png --dpi 200
 **Goal:** A diagram you'd actually want to use.
 
 **Tasks**
-- Mark columns: 🔑 PK, FK, `NOT NULL`, `UNIQUE`, defaults; show `CHECK` rules in a footer row.
-- Show **cardinality** with arrowheads: `arrowhead=crow` / `arrowtail=tee`
-  (one-to-many). Infer one-to-one when the FK column is also `UNIQUE`.
+- Mark columns: PK, FK, `NOT NULL`, `UNIQUE`, defaults; show `CHECK` rules in a footer row.
+- Show **cardinality** with arrow ends: `arrowtail=crow` / `arrowhead=tee`
+  (one-to-many, with the edge going from the FK table to its parent). Infer one-to-one when the FK column is also `UNIQUE`.
 - Draw nullable FKs (optional relationships) as dashed lines.
 - Make self-relationships readable (`headport`/`tailport` on the east/west side).
 - Try options: `rankdir=LR`, `splines=ortho`, `nodesep`, `ranksep`, colors.
