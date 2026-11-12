@@ -18,6 +18,8 @@ pip install -e .
 diagram path/to/schema.sql
 ```
 
+If Windows blocks `diagram.exe`, run `python -m schemadiagram path/to/schema.sql` instead; it works the same way.
+
 This writes `out/schema.svg`. Add `--open` to open it when it's done, or use `-o` to choose another location or format, like `-o shop.png`. Anything it has to skip is printed as a warning.
 
 ## Example
